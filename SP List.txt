@@ -1,0 +1,83 @@
+#1
+PROCEDURE `sp_Drone_Profile_Get`(OUT returncode VARCHAR(50), OUT returnmessage VARCHAR(255), p_token varchar(4096), p_drone_profile_id INT)
+if p_drone_profile_id = null - means get all existing profiles
+if you want specific id - send profile id
+
+Example of call: 
+
+CALL cd.sp_Drone_Profile_Get(@rc, @rm,'dashboard', null);
+
+example of testing of out parameters 
+ #SELECT @rc as RETURN_CODE, @rm as RETURN_Message;
+
+So pretty much all getters are configured the same - parameters for control/status, result set - for data. 
+
+if returncode =='OK' means sproc did not run into any errors
+If it is not OK - something happened.
+
+sp_Drone_Profile_Get returns these fields in the result set:
+   `drone_profile_id`
+   ,`drone_profile_name`
+   ,`speed_mph`
+   ,`power_unit_max`
+   ,`power_unit_per_mile`
+   ,`power_unit_name`
+#2
+sp_Drone_Create`(OUT returncode VARCHAR(50), OUT returnmessage VARCHAR(255), OUT p_drone_id INT
+ ,p_token varchar(4096)
+ ,p_drone_profile_id int(11)
+    ,p_power_unit_current decimal(16,2)
+    ,p_latitude decimal(11,8)
+    ,p_longitude decimal(11,8)
+)
+Call example: 
+CALL sp_Drone_Create(@rc, @rm, @did, 'testtoken', 1, 10.5, 80.99, -101.75);
+SELECT @rc as RETURN_CODE, @rm as RETURN_Message, @did as Drone_id;
+returns drone_id
+
+#3
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_Drone_Check_In`(OUT returncode VARCHAR(50), OUT returnmessage VARCHAR(255)
+	,p_token varchar(4096)
+    ,p_drone_id INT
+    ,p_power_unit_current decimal(16,2)
+    ,p_latitude decimal(11,8)
+    ,p_longitude decimal(11,8)
+)
+
+#CALL sp_Drone_Check_In(@rc, @rm, 'testtoken', 1, 10.5, 80.99, -101.75);
+
+#SELECT @rc as RETURN_CODE, @rm as RETURN_Message, @did as Drone_id;
+
+#4
+CALL sp_Drone_Get(@rc, @rm, 'testtoken', 3);
+SELECT @rc as RETURN_CODE, @rm as RETURN_Message;
+# for all active drones:
+CALL sp_Drone_Get(@rc, @rm, 'testtoken', null);
+
+Sp returns this result set: 
+`drone`.`drone_id`,
+`drone`.`drone_profile_id`,
+`drone`.`power_unit_current`,
+`drone`.`incident_id_current`,
+`drone`.`latitude`,
+`drone`.`longitude`,
+`drone`.`serial_number`,
+`drone`.`drone_status`
+
+#5
+PROCEDURE `sp_Reset_All`(OUT returncode VARCHAR(50), OUT returnmessage VARCHAR(255), OUT p_incident_id INT, p_token varchar(4096))
+ #CALL sp_Reset_All(@rc, @rm, @iid, 'testtoken');
+ #SELECT @rc as RETURN_CODE, @rm as RETURN_Message; 
+
+#6
+PROCEDURE `sp_Incident_Get`(OUT returncode VARCHAR(50), OUT returnmessage VARCHAR(255), p_token varchar(4096), p_incident_id INT)
+#CALL sp_Incident_Get(@rc, @rm, 'testtoken', 3);
+#SELECT @rc as RETURN_CODE, @rm as RETURN_Message;
+# for all active incidents:
+#CALL sp_Incident_Get(@rc, @rm, 'testtoken', null);
+
+#7
+PROCEDURE `sp_Incident_Create`(OUT returncode VARCHAR(50), OUT returnmessage VARCHAR(255), OUT p_incident_id INT, p_token varchar(4096), p_latitude DECIMAL(11,8), p_longitude DECIMAL(11,8), p_priority varchar(255), p_incident_status varchar(255))
+ #CALL sp_Incident_Create(@rc, @rm, @iid, 'testtoken', 100.001, 90.002, 'GREEN', 'ACTIVE');
+ #SELECT @rc as RETURN_CODE, @rm as RETURN_Message, @iid as RETURN_incident_id;
+
